@@ -3,8 +3,10 @@
 import cmd
 import sys
 import shlex
+import uuid
+from datetime import datetime
 from models.base_model import BaseModel
-from models import storage
+from models.__init__ import storage
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -38,7 +40,6 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -119,23 +120,26 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-        args_list = shlex.split(args)
+        args_list = args.split()
         if args_list[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        param_dict = {}
+        new_instance = HBNBCommand.classes[args_list[0]]()
         for arg in args_list[1:]:
             key_value = arg.split('=')
-            if len(key_value) != 2 or not key_value[0]:
-                continue
-            key = key_value[0]
-            value = key_value[1]
-            if value.startswith('"') and value.endswith('"'):
-                value = value[1:-1].replace('_', ' ').replace('\\"', '"')
-            param_dict[key] = value
-        new_instance = HBNBCommand.classes[args_list[0]](**param_dict)
+            if len(key_value) > 1:
+                key = key_value[0]
+                value = key_value[1]
+                if value.startswith('"'):
+                    value = value[1:-1].replace('_', ' ')
+                elif '.' in value:
+                    value = float(value)
+                else:
+                    value = int(value)
+                setattr(new_instance, key, value)
         new_instance.save()
         print(new_instance.id)
+        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -217,11 +221,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.__objects.items():
+            for k, v in storage._FileStorage__objects.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage.__objects.items():
+            for k, v in storage._FileStorage__objects.items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -234,7 +238,7 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage.__objects.items():
+        for k, v in storage._FileStorage__objects.items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)
@@ -330,4 +334,3 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
