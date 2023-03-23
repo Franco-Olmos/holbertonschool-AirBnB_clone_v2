@@ -4,7 +4,6 @@ import os
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from models import storage
 from models.city import City
 
 
@@ -18,5 +17,6 @@ class State(BaseModel, Base):
     if env != 'db':
         @property
         def cities(self):
+            from models import storage
             return [key for key, value in storage.all(City).items()
                     if self.id == value.state_id]
