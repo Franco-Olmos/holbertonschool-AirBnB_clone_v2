@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 """ Review module for the HBNB project """
-from models.base_model import BaseModel
+from models.base_model import BaseModel, base
+from sqlalchemy import Column, String, FreignKey
 
-
-class Review(BaseModel):
+class Review(BaseModel, base):
     """ Review class to store review information """
 
     __tablename__ = "reviews"
