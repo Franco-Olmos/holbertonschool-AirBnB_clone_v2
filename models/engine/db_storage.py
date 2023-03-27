@@ -15,6 +15,7 @@ from sqlalchemy.orm import sessionmaker, query, scoped_session
 class DBStorage():
     __engine = None
     __session = None
+    classes_list = (User, State, City, Amenity, Place, Review)
 
     def __init__(self):
         user = getenv('HBNB_MYSQL_USER')
@@ -32,12 +33,9 @@ class DBStorage():
         "this method must return a dictionary with requested info"
         objects = []
         if cls is None:
-            objects = self.__session.query(State).all()
-            objects += self.__session.query(City).all()
-            objects += self.__session.query(User).all()
-            objects += self.__session.query(Amenity).all()
-            objects += self.__session.query(Place).all()
-            objects += self.__session.query(Review).all()
+            for class_name in self.classes_list:
+                for obj in self.__session.query(class_name).all():
+                    values[obj.__class__.__name__ + '.' + obj.id] = obj
         else:
             objects = self.__session.query(cls).all()
         obj_dict = {}
@@ -55,9 +53,8 @@ class DBStorage():
 
     def reload(self):
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
-        Session = scoped_session(session_factory)
+        session = sessionmaker(self.__engine, expire_on_commit=False)
+        Session = scoped_session(session)
         self.__session = Session()
 
     def save(self):
