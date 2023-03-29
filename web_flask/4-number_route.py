@@ -29,7 +29,7 @@ def python_print(text='is cool'):
     return 'Python {}'.format(text.replace('_', ' '))
 
 
-@app.route('/numeber/<n>', strict_slashes=False)
+@app.route('/number/<n>', strict_slashes=False)
 def number_print(n):
     """Returns a statement only if n is a integer"""
     if isinstance(n, int):
