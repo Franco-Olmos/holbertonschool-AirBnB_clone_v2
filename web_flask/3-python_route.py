@@ -21,10 +21,10 @@ def c_print(text):
     """Display a statement"""
     return "C {}".format(Markup.escape(text.replace('_', ' ')))
 
-
+@app.route('/python/', strict_slashes=False)
 @app.route('/python/<text>', strict_slashes=False)
 def python_print(text='is cool'):
-    return 'Python {}'.format(Markup.escape(text.replace('_', ' ')))
+    return 'Python {}'.format(text.replace('_', ' '))
 
 
 if __name__ == '__main__':
