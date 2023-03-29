@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """Runs a simple flask app"""
-from flask import Flask
-from markupsafe import escape
+from flask import Flask, Markup
 app = Flask(__name__)
 
 
@@ -20,7 +19,7 @@ def hbnb():
 @app.route('/c/<text>', strict_slashes=False)
 def c_print(text):
     """Display a statement"""
-    return "C {}".format(escape(text).replace('_', ' '))
+    return "C {}".format(Markup.escape(text.replace('_', ' ')))
 
 
 if __name__ == '__main__':
